@@ -7,8 +7,10 @@ const cors = require('cors')
 const helmet = require('helmet')
 const {NODE_ENV} = require('./config');
 const errorHandler = require('./errorHandler')
-const validateBearerToken = require('./validateBearerToken')
+//const validateBearerToken = require('./validateBearerToken')
 const logger = require('./logger');
+const incomeRouter = require('./income/income-router')
+const usersRouter = require('./users/user-router')
 
 const app = express()
 //pipeline begins
@@ -25,7 +27,10 @@ app.use(cors())
 app.get('/', (req, res) => {
     res.send('Hello, boilerplate!');
 })
-app.use(validateBearerToken);
+
+app.use('/api/incomes', incomeRouter);
+app.use(`/api/users`, usersRouter);
+//app.use(validateBearerToken);
 
 //error handler
 app.use(errorHandler);
