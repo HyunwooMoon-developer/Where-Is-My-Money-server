@@ -5,11 +5,3 @@ CREATE TABLE wimm_user(
     password TEXT NOT NULL,
     date_created TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
-
-CREATE TABLE income(
-
-);
-
-CREATE TABLE spending(
-
-);
