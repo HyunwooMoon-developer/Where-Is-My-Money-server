@@ -21,7 +21,7 @@ VALUES
 ('Util' , 3), 
 ('ETC' , 1) ;
 
-INSERT INTO wimm_spending_item(itemName, categoryId, spending, content)
+INSERT INTO wimm_spending_item(item_name, category_id, spending, content)
 VALUES
 ('Galleria Market', 1, 13.50, 'Fruit, Meat, Milk'),
 ('RALPHS', 1, 16.00, 'Beer, Ramen'),

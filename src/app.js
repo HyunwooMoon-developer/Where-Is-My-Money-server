@@ -11,6 +11,7 @@ const errorHandler = require('./errorHandler')
 const logger = require('./logger');
 const incomeRouter = require('./income/income-router')
 const usersRouter = require('./users/user-router')
+const spendingItemRouter = require('./spending-item/spending-item-router')
 
 const app = express()
 //pipeline begins
@@ -30,6 +31,7 @@ app.get('/', (req, res) => {
 
 app.use('/api/incomes', incomeRouter);
 app.use(`/api/users`, usersRouter);
+app.use('/api/sitems', spendingItemRouter);
 //app.use(validateBearerToken);
 
 //error handler
