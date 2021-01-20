@@ -7,3 +7,4 @@ CREATE TABLE wimm_income(
     date_created TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     user_id INTEGER REFERENCES wimm_user(id) ON DELETE CASCADE NOT NULL
 );
+

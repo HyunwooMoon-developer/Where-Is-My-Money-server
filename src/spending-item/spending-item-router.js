@@ -30,7 +30,9 @@ spendingItemRouter
                         })
                         .catch(next)
 })
-.post(requireAuth,jsonParser, (req, res, next) =>{
+//.post(requireAuth,jsonParser, (req, res, next) =>{
+
+.post(jsonParser, (req, res, next) => {
     const {category_id, item_name, spending, content} = req.body;
     const newItems = {category_id, item_name, spending, content};
     const db = req.app.get('db');
@@ -53,7 +55,7 @@ spendingItemRouter
 
 spendingItemRouter
 .route('/:sitem_id')
-.all(requireAuth)
+//.all(requireAuth)
 .all((req, res, next)=> {
     const db = req.app.get('db')
 

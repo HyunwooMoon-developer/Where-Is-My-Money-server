@@ -26,7 +26,9 @@ spendingListRouter
                         })
                         .catch(next)
 })
-.post(requireAuth ,jsonParser, (req, res, next)=> {
+//.post(requireAuth ,jsonParser, (req, res, next)=> {
+
+.post(jsonParser, (req, res, next) => {
     const db = req.app.get('db');
     const {category} = req.body;
     const newList = {category};
@@ -49,7 +51,7 @@ spendingListRouter
 
 spendingListRouter
 .route('/:slist_id')
-.all(requireAuth)
+//.all(requireAuth)
 .all((req, res, next)=> {
     const db = req.app.get('db')
 
