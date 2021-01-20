@@ -1,8 +1,10 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
 const path = require('path');
+const xss = require('xss');
 const express = require('express');
 const SpendingItemService = require('./spending-item-service');
+const { requireAuth } = require('../middleware/jwt-auth');
 
 const spendingItemRouter = express.Router();
 const jsonParser = express.json();
@@ -11,9 +13,9 @@ const jsonParser = express.json();
 const serializeedItem = item => ({
     id: item.id,
     category_id : item.category_id,
-    item_name : item.item_name,
+    item_name : xss(item.item_name),
     spending : item.spending,
-    content : item.content,
+    content : xss(item.content),
     date_created : item.date_created
 })
 
@@ -28,7 +30,7 @@ spendingItemRouter
                         })
                         .catch(next)
 })
-.post(jsonParser, (req, res, next) =>{
+.post(requireAuth,jsonParser, (req, res, next) =>{
     const {category_id, item_name, spending, content} = req.body;
     const newItems = {category_id, item_name, spending, content};
     const db = req.app.get('db');
@@ -51,6 +53,7 @@ spendingItemRouter
 
 spendingItemRouter
 .route('/:sitem_id')
+.all(requireAuth)
 .all((req, res, next)=> {
     const db = req.app.get('db')
 

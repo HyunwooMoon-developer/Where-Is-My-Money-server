@@ -3,9 +3,9 @@ BEGIN;
 
 INSERT INTO wimm_user(user_name, full_name, password)
 VALUES
-('first_user', 'Jim Carrey', '11aaAA!!'),
-('second_user', 'Robert Downey Jr', '22bbBB@@'),
-('forth_user', 'Emma Watson', '44ddDD$$');
+('first_user', 'Jim Carrey', '$2a$12$fG05gcHYTFNRDt.4.50XN.ebz1ZeNEIwZh91YPlJ8ik/5dbePH3A2'),
+('second_user', 'Robert Downey Jr', '$2a$12$Oy2RNgPCJQBhxEbj4/eaa.GDBbuA6L.MADer0Hdg1BdJZLV6a4pLK'),
+('forth_user', 'Emma Watson', '$2a$12$UzsZdLZWox.mNL.Qzq0og.sCLIYLU2JvjJ8jQ.PXAC09IjyTQLQou');
 
 INSERT INTO wimm_income(start_time, end_time, hourly_payment, daily_extra, user_id)
 VALUES

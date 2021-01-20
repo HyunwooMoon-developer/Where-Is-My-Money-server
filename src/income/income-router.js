@@ -3,6 +3,7 @@
 const path = require('path');
 const express = require('express');
 const incomeService = require('./income-service');
+const {requireAuth} = require('../middleware/jwt-auth');
 
 const incomeRouter = express.Router();
 const jsonParser = express.json();
@@ -28,9 +29,9 @@ incomeRouter
         })
         .catch(next)
 })
-.post(jsonParser, (req, res, next) => {
-    const {start_time, end_time, hourly_payment, daily_extra, user_id} = req.body;
-    const newIncome = {start_time, end_time, hourly_payment, daily_extra, user_id};
+.post(requireAuth,jsonParser, (req, res, next) => {
+    const {start_time, end_time, hourly_payment, daily_extra} = req.body;
+    const newIncome = {start_time, end_time, hourly_payment, daily_extra};
     const db = req.app.get('db');
 
     for(const [key, value] of Object.entries(newIncome))
@@ -38,7 +39,7 @@ incomeRouter
     return res.status(400).json({
         error: {message : `Missing '${key}' in request body`}
     })
-    //newIncome.user_id = req.user.id
+    newIncome.user_id = req.user.id
     //newIncome.date_created = date_created;
 
     incomeService.insertIncome(db, newIncome)
@@ -52,6 +53,7 @@ incomeRouter
 
 incomeRouter
 .route('/:income_id')
+.all(requireAuth)
 .all((req, res, next) => {
     const db = req.app.get('db');
     incomeService.getIncomeById(db,req.params.income_id)
@@ -78,8 +80,8 @@ incomeRouter
                 .catch(next)
 })
 .patch(jsonParser, (req, res, next)=> {
-    const {start_time, end_time, hourly_payment, daily_extra, user_id} = req.body;
-    const incomeToUpdate = {start_time, end_time, hourly_payment, daily_extra, user_id};
+    const {start_time, end_time, hourly_payment, daily_extra} = req.body;
+    const incomeToUpdate = {start_time, end_time, hourly_payment, daily_extra};
     const db = req.app.get('db');
 
     const numberOfValues = Object.values(incomeToUpdate).filter(Boolean).length;
