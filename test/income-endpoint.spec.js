@@ -6,7 +6,7 @@ const supertest = require('supertest');
 const app = require('../src/app');
 const helpers = require('./helpers');
 
-describe.only(`Income Endpoints`, ()=> {
+describe(`Income Endpoints`, ()=> {
     let db;
 
     const {testIncome, testUsers} = helpers.makeWimmArray();
@@ -162,7 +162,7 @@ describe.only(`Income Endpoints`, ()=> {
 
             it(`Responds with 204 and update the income`,  ()=> {
                 const idToUpdate = 2;
-                const updatedIncome = {
+                const IncomeToUpdate = {
                 start_time : "9", 
                 end_time : "18", 
                 hourly_payment : "12.00", 
@@ -171,12 +171,12 @@ describe.only(`Income Endpoints`, ()=> {
                 }
                 const expectedIncome = {
                     ...testIncome[idToUpdate -1],
-                    ...updatedIncome
+                    ...IncomeToUpdate
                 }
 
                 return supertest(app)
                         .patch(`/api/incomes/${idToUpdate}`)
-                        .send(updatedIncome)
+                        .send(IncomeToUpdate)
                         .expect(204)
                         .then(res=>
                             supertest(app)
@@ -184,7 +184,7 @@ describe.only(`Income Endpoints`, ()=> {
                                 .expect(expectedIncome)
                             )
             })
-            it(`Responds wit 204 when updating only a subset of fields`, ()=> {
+            it(`Responds with 400 when updating only a subset of fields`, ()=> {
                 const idToUpdate = 1;
                 
                 return supertest(app)
@@ -196,7 +196,7 @@ describe.only(`Income Endpoints`, ()=> {
             })
             it(`Responds with 204 when updating only a subset of fields`, ()=> {
                 const idToUpdate = 1;
-                const updatedIncome={
+                const IncomeToUpdate={
                     start_time : "9", 
                     end_time : "18", 
                     hourly_payment : "12.00", 
@@ -206,13 +206,13 @@ describe.only(`Income Endpoints`, ()=> {
 
                 expectedIncome = {
                     ...testIncome[idToUpdate -1],
-                    ...updatedIncome
+                    ...IncomeToUpdate
                 }
                 
                 return supertest(app)
                     .patch(`/api/incomes/${idToUpdate}`)
                     .send({
-                        ...updatedIncome,
+                        ...IncomeToUpdate,
                         fieldToIgnore : `Should not be in GET response`
                     })
                     .expect(204)

@@ -31,6 +31,55 @@ function makeIncomeArray(){
     ]
 }
 
+function makeListArray(){
+    return [
+        {
+            id: 1 ,
+            category: "food",
+            user_id: 1,
+        },
+        {
+            id: 2 ,
+            category: "shopping",
+            user_id: 2,
+        },
+        {
+            id: 3 ,
+            category: "utility",
+            user_id: 3,
+        }
+    ]
+}
+
+function makeItemArray(){
+    return [
+        {
+            id : 1,
+            category_id : 1,
+            item_name : "Galleria Market",
+            spending : "18.00",
+            content : 'Fruit, Meat, Milk',
+            date_created:'2021-01-20T16:28:32.615Z',
+        },
+        {
+            id : 2,
+            category_id : 2,
+            item_name : 'Nike',
+            spending : "48.00",
+            content : 'Nike shoes',
+            date_created:'2021-01-20T16:28:32.615Z',
+        },
+        {
+            id : 3,
+            category_id : 3,
+            item_name : 'LADWP',
+            spending : "18.00",
+            content : 'Electric Fee',
+            date_created:'2021-01-20T16:28:32.615Z',
+        }
+    ]
+}
+
 function makeUsersArray(){
     return [
         {
@@ -62,8 +111,10 @@ function makeUsersArray(){
 function makeWimmArray(){
     const testIncome = makeIncomeArray();
     const testUsers = makeUsersArray();
+    const testLists = makeListArray();
+    const testItems = makeItemArray();
 
-    return {testUsers, testIncome} 
+    return {testUsers, testIncome, testLists , testItems} 
 }
 
 
@@ -91,6 +142,10 @@ function cleanTable(db){
 module.exports = {
     makeIncomeArray,
     makeUsersArray,
+    makeListArray,
+    makeWimmArray,
+    makeItemArray,
+
+
     cleanTable,
-    makeWimmArray
 }

@@ -30,15 +30,15 @@ spendingListRouter
 
 .post(jsonParser, (req, res, next) => {
     const db = req.app.get('db');
-    const {category} = req.body;
-    const newList = {category};
+    const {category, user_id} = req.body;
+    const newList = {category, user_id};
 
     for(const [key, value] of Object.entries(newList))
     if(value ==null)
     return res.status(400).json({
         error: {message : `Missing '${key}' in request body`}
     })
-    newList .user_id = req.user.id;
+    //newList .user_id = req.user.id;
 
     SpendingListService.insertSpendingList(db, newList)
                         .then(list=> {
