@@ -1,8 +1,8 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-undef */
-/*const express = require('express');
+const express = require('express');
 const path = require('path');
-const UsersService = require('./users-service');
+const UsersService = require('./user-service');
 
 const usersRouter = express.Router();
 const jsonParser = express.json();
@@ -54,4 +54,4 @@ usersRouter
 
 })
 
-module.exports = usersRouter;*/
+module.exports = usersRouter;

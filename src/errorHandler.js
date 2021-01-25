@@ -8,7 +8,7 @@ function errorHandler(error, req, res, next) {
       response = { error: { message: 'server error' } }
     } else {
       console.error(error)
-      response = { message: error.message, error }
+      response = { message: error.message, object : error }
     }
     res.status(500).json(response)
   }

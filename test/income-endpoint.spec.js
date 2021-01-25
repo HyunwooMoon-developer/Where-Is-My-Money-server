@@ -10,6 +10,7 @@ describe(`Income Endpoints`, ()=> {
     let db;
 
     const {testIncome, testUsers} = helpers.makeWimmArray();
+    
 
     before('make knex instance', ()=> {
         db=knex({
@@ -23,6 +24,7 @@ describe(`Income Endpoints`, ()=> {
     after('disconnect from db', ()=> db.destroy())
     before('cleanup', ()=> helpers.cleanTable(db))
     afterEach('cleanup', ()=> helpers.cleanTable(db))
+
     // afterEach('cleanup',  ()=> db.raw(`TRUNCATE wimm_user, wimm_income, wimm_spending_list, wimm_spending_item RESTART IDENTITY CASCADE`))
 
     describe(`GET /api/incomes`, ()=> {
@@ -37,14 +39,11 @@ describe(`Income Endpoints`, ()=> {
           
 
             beforeEach('Insert incomes' , ()=> {
-                        return db
-                            .into('wimm_user')
-                            .insert(testUsers)
-                            .then(()=> {
-                                return db
-                                .into('wimm_income')
-                             .insert(testIncome)
-                            })
+                        return helpers.seedIncomesTables(
+                            db,
+                            testUsers,
+                            testIncome
+                        )
                         })
             it(`GET /api/incomes responds with 200 and all of the incomes`, ()=> {
                 return supertest(app)
@@ -56,27 +55,27 @@ describe(`Income Endpoints`, ()=> {
                 const expectedIncome = testIncome[incomeId -1];
                 return supertest(app)
                         .get(`/api/incomes/${incomeId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(200, expectedIncome)
             })
         })
     })
     describe(`POST /api/incomes` , ()=> {
-        beforeEach('insert malicious user' , ()=> {
-            return db
-            .into('wimm_user')
-            .insert(testUsers)
-        })
+        beforeEach('insert malicious user' , ()=> 
+            helpers.seedUsers(db, testUsers)
+        )
 
         it(`Create an income, responding with 201 and the new article` , ()=> {
+            const testUser = testUsers[0]
             const newIncome = {
                 start_time : "9", 
                 end_time : "18", 
                 hourly_payment : "12.00", 
-                daily_extra : "20.00", 
-                user_id : 1,
+                daily_extra : "20.00"
             }
             return supertest(app)
                     .post('/api/incomes')
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                     .send(newIncome)
                     .expect(201)
                     .expect(res => {
@@ -84,7 +83,7 @@ describe(`Income Endpoints`, ()=> {
                         expect(res.body.end_time).to.eql(newIncome.end_time)
                         expect(res.body.hourly_payment).to.eql(newIncome.hourly_payment)
                         expect(res.body.daily_extra).to.eql(newIncome.daily_extra)
-                        expect(res.body.user_id).to.eql(newIncome.user_id)
+                        expect(res.body.user_id).to.eql(testUser.id)
                         expect(res.body).to.have.property('id')
                         expect(res.headers.location).to.eql(`/api/incomes/${res.body.id}`)
                         const expected = new Intl.DateTimeFormat(`en-US`).format(new Date())
@@ -94,6 +93,7 @@ describe(`Income Endpoints`, ()=> {
                     .then(res=>
                             supertest(app)
                                 .get(`/api/incomes/${res.body.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                                 .expect(res.body)    
                              )
         })
@@ -107,19 +107,17 @@ describe(`Income Endpoints`, ()=> {
 
                 return supertest(app)
                         .delete(`/api/incomes/${incomeId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(404, {error : {message : `Income doesn't exist`}})
             })
         })
         context(`Given there are incomes in the database`, ()=> {
             beforeEach('Insert incomes' , ()=> {
-                return db
-                    .into('wimm_user')
-                    .insert(testUsers)
-                    .then(()=> {
-                        return db
-                        .into('wimm_income')
-                     .insert(testIncome)
-                    })
+                return helpers.seedIncomesTables(
+                    db,
+                    testUsers,
+                    testIncome
+                )
                     })
             it(`Responds with 204 and removes the notes` , ()=> {
                 const idToRemove = 2;
@@ -127,6 +125,7 @@ describe(`Income Endpoints`, ()=> {
 
                 return supertest(app)
                         .delete(`/api/incomes/${idToRemove}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(204)
                         .then(res=>
                                 supertest(app)
@@ -143,6 +142,7 @@ describe(`Income Endpoints`, ()=> {
 
                 return supertest(app)
                         .patch(`/api/incomes/${incomeId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(404,{
                             error: {message: `Income doesn't exist`}
                         })
@@ -150,14 +150,11 @@ describe(`Income Endpoints`, ()=> {
         })
         context(`Given there are notes in the database`, ()=> {
             beforeEach('Insert incomes' , ()=> {
-                return db
-                    .into('wimm_user')
-                    .insert(testUsers)
-                    .then(()=> {
-                        return db
-                        .into('wimm_income')
-                     .insert(testIncome)
-                    })
+                return helpers.seedIncomesTables(
+                    db,
+                    testUsers,
+                    testIncome
+                )
                     })
 
             it(`Responds with 204 and update the income`,  ()=> {
@@ -176,6 +173,7 @@ describe(`Income Endpoints`, ()=> {
 
                 return supertest(app)
                         .patch(`/api/incomes/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send(IncomeToUpdate)
                         .expect(204)
                         .then(res=>
@@ -189,6 +187,7 @@ describe(`Income Endpoints`, ()=> {
                 
                 return supertest(app)
                         .patch(`/api/incomes/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send({irrelevantField : 'foo'})
                         .expect(400, {
                             error: {message: `Request body must contain either 'start_time', 'end_time', 'hourly_payment', 'daily_extra'`}
@@ -211,6 +210,7 @@ describe(`Income Endpoints`, ()=> {
                 
                 return supertest(app)
                     .patch(`/api/incomes/${idToUpdate}`)
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                     .send({
                         ...IncomeToUpdate,
                         fieldToIgnore : `Should not be in GET response`

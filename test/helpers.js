@@ -1,4 +1,7 @@
 /* eslint-disable no-undef */
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken');
+
 function makeIncomeArray(){
     return [
         {
@@ -138,6 +141,44 @@ function cleanTable(db){
         )
 }
 
+function seedUsers(db, users){
+    const preppedUsers = users.map(user=> ({
+        ...user,
+        password : bcrypt.hashSync(user.password, 1)
+    }))
+    return db.into('wimm_user').insert(preppedUsers)
+            .then(()=>
+            //update the auto sequence to stay in sync
+            db.raw(
+                `SELECT setval('wimm_user_id_seq', ?)`,
+                [users[users.length -1].id],
+            )
+        )
+}
+
+function seedIncomesTables(db, users, incomes){
+    //use a transaction to group the queries and auto rollback on any failure
+    return db.transaction(async trx=>{
+        await seedUsers(trx, users)
+        await trx.into('wimm_income').insert(incomes)
+        //update the auto sequnce to match the forced id values
+        await Promise.all([
+            trx.raw(
+                `SELECT setval('wimm_income_id_seq', ?)`,
+                [incomes[incomes.length -1].id],
+            ),
+        ])
+    })
+}
+
+function makeAuthHeader(user, secret = process.env.JWT_SECRET){
+    const token = jwt.sign({user_id: user.id}, secret, {
+        subject : user.user_name,
+        algorithm : 'HS256',
+    })
+    return `Bearer ${token}`
+}
+
 
 module.exports = {
     makeIncomeArray,
@@ -148,4 +189,7 @@ module.exports = {
 
 
     cleanTable,
+    seedIncomesTables,
+    makeAuthHeader,
+    seedUsers
 }
