@@ -6,7 +6,7 @@ const supertest = require('supertest');
 const app = require('../src/app');
 const helpers = require('./helpers');
 
-describe(`Income Endpoints`, ()=> {
+describe.only(`Income Endpoints`, ()=> {
     let db;
 
     const {testIncome, testUsers} = helpers.makeWimmArray();
@@ -102,6 +102,13 @@ describe(`Income Endpoints`, ()=> {
     })
     describe(`DELETE /api/incomes/:income_id`, ()=> {
         context(`Given no data` , ()=> {
+            beforeEach('Insert incomes' , ()=> {
+                return helpers.seedIncomesTables(
+                    db,
+                    testUsers,
+                    testIncome
+                )
+                    })
             it('Responds with 404' , ()=> {
                 const incomeId = 123456;
 
@@ -137,6 +144,13 @@ describe(`Income Endpoints`, ()=> {
     })
     describe(`PATCH /api/incomes/:income_id` , ()=> {
         context(`Given no data` , ()=> {
+            beforeEach('Insert incomes' , ()=> {
+                return helpers.seedIncomesTables(
+                    db,
+                    testUsers,
+                    testIncome
+                )
+                    })
             it(`Responds with 404` , ()=> {
                 const incomeId = 123456;
 
@@ -179,6 +193,7 @@ describe(`Income Endpoints`, ()=> {
                         .then(res=>
                             supertest(app)
                                 .get(`/api/incomes/${idToUpdate}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                                 .expect(expectedIncome)
                             )
             })
@@ -219,6 +234,7 @@ describe(`Income Endpoints`, ()=> {
                     .then(res=>
                         supertest(app)
                             .get(`/api/incomes/${idToUpdate}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(expectedIncome)
                         )
             })

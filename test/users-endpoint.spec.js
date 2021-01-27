@@ -6,7 +6,7 @@ const app = require('../src/app');
 const bcrypt = require('bcryptjs');
 const helpers = require('./helpers');
 
-describe.only('Users Endpoints' , ()=> {
+describe('Users Endpoints' , ()=> {
     let db
 
     const {testUsers} = helpers.makeWimmArray();

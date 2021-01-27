@@ -30,15 +30,15 @@ spendingListRouter
 
 .post(requireAuth,jsonParser, (req, res, next) => {
     const db = req.app.get('db');
-    const {category, user_id} = req.body;
-    const newList = {category, user_id};
+    const {category} = req.body;
+    const newList = {category};
 
     for(const [key, value] of Object.entries(newList))
     if(value ==null)
     return res.status(400).json({
         error: {message : `Missing '${key}' in request body`}
     })
-    //newList .user_id = req.user.id;
+   newList .user_id = req.user.id;
 
     SpendingListService.insertSpendingList(db, newList)
                         .then(list=> {
@@ -79,16 +79,18 @@ spendingListRouter
                         })
                         .catch(next)
 })
-.patch(jsonParser, (req, res, next)=> {
+.patch(requireAuth,jsonParser, (req, res, next)=> {
     const db = req.app.get('db')
-    const {category, user_id} = req.body;
-    const ListToUpdate = {category, user_id};
+    const {category} = req.body;
+    const ListToUpdate = {category};
 
     const numberOfValues = Object.values(ListToUpdate).filter(Boolean).length;
     if(numberOfValues === 0)
     return res.status(400).json({
         error : {message: `Request body must contain 'category' or 'user_id'`}
     })
+    ListToUpdate.user_id = req.user.id;
+
 
     SpendingListService.updateSpendingList(db, req.params.slist_id, ListToUpdate)
                         .then(()=> {
