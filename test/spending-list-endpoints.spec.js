@@ -6,7 +6,7 @@ const supertest = require('supertest');
 const app = require('../src/app');
 const helpers = require('./helpers');
 
-describe(`Spending-List Endpoints`, ()=> {
+describe.only(`Spending-List Endpoints`, ()=> {
     let db;
 
     const {testLists, testUsers} = helpers.makeWimmArray();
