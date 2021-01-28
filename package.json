@@ -7,12 +7,12 @@
     "start": "node src/server.js",
     "predeploy": "npm audit",
     "deploy": "git push heroku main",
-    "podstdeploy":"npm run migrate:production",
+    "podstdeploy": "npm run migrate:production",
     "test": "mocha --require test/setup.js",
     "dev": "nodemon src/server.js",
     "migrate": "postgrator --config postgrator-config.js",
     "migrate:test": "env NODE_ENV=test npm run migrate",
-    "migrate:production" : "env SSL=TRUE heroku run npm run migrate"
+    "migrate:production": "env SSL=TRUE heroku run npm run migrate"
   },
   "keywords": [],
   "author": "",
@@ -26,7 +26,7 @@
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.21.16",
     "morgan": "^1.10.0",
-    "pg": "^8.5.1",
+    "pg": "^7.18.2",
     "postgrator-cli": "^3.2.0",
     "winston": "^3.3.3",
     "xss": "^1.0.8"
