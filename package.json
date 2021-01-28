@@ -7,6 +7,7 @@
     "start": "node src/server.js",
     "predeploy": "npm audit",
     "deploy": "git push heroku main",
+    "podstdeploy":"npm run migrate:production",
     "test": "mocha --require test/setup.js",
     "dev": "nodemon src/server.js",
     "migrate": "postgrator --config postgrator-config.js",
