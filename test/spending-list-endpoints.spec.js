@@ -6,7 +6,7 @@ const supertest = require('supertest');
 const app = require('../src/app');
 const helpers = require('./helpers');
 
-describe.only(`Spending-List Endpoints`, ()=> {
+describe(`Spending-List Endpoints`, ()=> {
     let db;
 
     const {testLists, testUsers} = helpers.makeWimmArray();
@@ -35,14 +35,11 @@ describe.only(`Spending-List Endpoints`, ()=> {
         })
         context(`Given there are lists in the database` , ()=> {
             beforeEach('Insert Lists' , ()=> {
-                return db
-                    .into('wimm_user')
-                    .insert(testUsers)
-                    .then(()=> {
-                        return db
-                        .into('wimm_spending_list')
-                        .insert(testLists)
-                    })
+                return helpers.seedSpendingListTables(
+                    db,
+                    testUsers,
+                    testLists
+                )
                 })
             it(`GET /api/slists responds with 200 and all of the lists`, ()=>{
                return supertest(app)
@@ -56,6 +53,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
 
                 return supertest(app)
                         .get(`/api/slists/${listId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(200, expectedList)
             })
 
@@ -63,9 +61,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
     })
     describe(`POST /api/slists` , ()=> {
         beforeEach(`Insert malicious user` ,()=> {
-            return db
-            .into('wimm_user')
-            .insert(testUsers)
+            helpers.seedUsers(db, testUsers)
         })
         it(`Create a list, responding with 201 and the new list`,()=>{
             const newList={
@@ -74,6 +70,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
             }
             return supertest(app)
                     .post(`/api/slists`)
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                     .send(newList)
                     .expect(201)
                     .expect(res=> {
@@ -86,6 +83,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
                     .then(res=>
                         supertest(app)
                             .get(`/api/slists/${res.body.id}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(res.body)
                         )
                     })
@@ -93,11 +91,19 @@ describe.only(`Spending-List Endpoints`, ()=> {
     })
     describe(`DELETE /api/slists/:slist_id` , ()=> {
         context(`Given no data` , ()=> {
+            beforeEach('Insert Lists' , ()=> {
+                return helpers.seedSpendingListTables(
+                    db,
+                    testUsers,
+                    testLists
+                )
+                })
             it(`Responds with 404`, ()=> {
                 const listId = 123456;
 
                 return supertest(app)
                         .delete(`/api/slists/${listId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(404,{
                             error: {message : `List doesn't exist`}
                         })
@@ -105,14 +111,12 @@ describe.only(`Spending-List Endpoints`, ()=> {
         })
         context(`Given there are list in the database` , ()=> {
             beforeEach('Insert Lists' , ()=> {
-                return db
-                    .into('wimm_user')
-                    .insert(testUsers)
-                    .then(()=> {
-                        return db
-                        .into('wimm_spending_list')
-                        .insert(testLists)
-                    })
+                return helpers.seedSpendingListTables(
+                    db,
+                    testUsers,
+                    testLists
+                )
+                    
                 })
             it(`Responds with 204 and removes the list`, ()=> {
                 const idToRemove = 1;
@@ -120,10 +124,12 @@ describe.only(`Spending-List Endpoints`, ()=> {
 
                 return supertest(app)
                     .delete(`/api/slists/${idToRemove}`)
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                     .expect(204)
                     .then(res=>
                         supertest(app)
                             .get(`/api/slists`)
+                            .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(expectedList)
                         )
             })
@@ -132,11 +138,19 @@ describe.only(`Spending-List Endpoints`, ()=> {
     })
     describe(`PATCH /api/slists/:slist_id` , ()=> {
         context(`Given no data` , ()=> {
+            beforeEach('Insert Lists' , ()=> {
+                return helpers.seedSpendingListTables(
+                    db,
+                    testUsers,
+                    testLists
+                )
+                })
             it(`Responds with 404`, ()=> {
                 const listId = 123456;
 
                 return supertest(app)
                         .patch(`/api/slists/${listId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(404, {
                             error: {message: `List doesn't exist`}
                         })
@@ -144,14 +158,11 @@ describe.only(`Spending-List Endpoints`, ()=> {
         })
         context(`Given there are the lists in the database` , ()=> {
             beforeEach('Insert Lists' , ()=> {
-                return db
-                    .into('wimm_user')
-                    .insert(testUsers)
-                    .then(()=> {
-                        return db
-                        .into('wimm_spending_list')
-                        .insert(testLists)
-                    })
+                return helpers.seedSpendingListTables(
+                    db,
+                    testUsers,
+                    testLists
+                )
                 })
             it(`Responds with 204 and update the income`, ()=> {
                 const idToUpdate = 2;
@@ -167,11 +178,13 @@ describe.only(`Spending-List Endpoints`, ()=> {
 
                 return supertest(app)
                         .patch(`/api/slists/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send(ListToUpdate)
                         .expect(204)
                         .then(res=> 
                             supertest(app)
                             .get(`/api/slists/${idToUpdate}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(expectedList)
                             )
                         
@@ -181,6 +194,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
                 
                 return supertest(app)
                         .patch(`/api/slists/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send({irrelevantField : 'foo'})
                         .expect(400 ,
                          {error : {message: `Request body must contain 'category' or 'user_id'`}})
@@ -199,6 +213,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
 
                 return supertest(app)
                         .patch(`/api/slists/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send({
                             ...ListToUpdate,
                             fieldToIgnore : `Should not be in GET response`
@@ -207,6 +222,7 @@ describe.only(`Spending-List Endpoints`, ()=> {
                         .then(res=> 
                             supertest(app)
                                 .get(`/api/slists/${idToUpdate}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                                 .expect(expectedList)
                             )
             })

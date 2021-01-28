@@ -34,19 +34,12 @@ describe(`Spending Items Endpoints` , () => {
         })
         context(`Given there are items in the database` , ()=> {
             beforeEach('insert Items' , ()=> {
-                return db
-                .into('wimm_user')
-                .insert(testUsers)
-                .then(()=> {
-                    return db
-                    .into('wimm_spending_list')
-                    .insert(testLists)
-                    .then(()=> {
-                        return db
-                        .into('wimm_spending_item')
-                        .insert(testItems)
-                    })
-                })
+                return helpers.seedSpendingItemTables(
+                    db,
+                    testUsers,
+                    testLists,
+                    testItems
+                )
             })
             it(`GET /api/sitems responds with 200 and all of the items` , ()=> {
                 return supertest(app)
@@ -64,20 +57,18 @@ describe(`Spending Items Endpoints` , () => {
 
                 return supertest(app)
                         .get(`/api/sitems/${itemId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(200, expectedItem)
             })
         })
     })
     describe(`POST /api/sitems`, ()=> {
         beforeEach(`Insert malicious list`, ()=> {
-            return db
-                .into('wimm_user')
-                .insert(testUsers)
-                .then(()=> {
-                    return db
-                    .into('wimm_spending_list')
-                    .insert(testLists)
-            })
+            return helpers.seedSpendingListTables(
+                db,
+                testUsers,
+                testLists
+            )
         })
         it(`Create an item, responding with 201 and the new item` , ()=> {
             const newItem = {
@@ -89,6 +80,7 @@ describe(`Spending Items Endpoints` , () => {
 
             return supertest(app)
                     .post(`/api/sitems`)
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                     .send(newItem)
                     .expect(201)
                     .expect(res=> {
@@ -105,17 +97,27 @@ describe(`Spending Items Endpoints` , () => {
                     .then(res=>
                             supertest(app)
                                 .get(`/api/sitems/${res.body.id}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                                 .expect(res.body)
                         )
         })
     })
     describe(`DELETE /api/sitems/:sitem_id` , ()=> {
         context(`Given no data` , ()=> {
+            beforeEach('insert Items' , ()=> {
+                return helpers.seedSpendingItemTables(
+                    db,
+                    testUsers,
+                    testLists,
+                    testItems
+                )
+            })
             it(`Responds with 404`, ()=> {
                 const itemId = 123456;
                 
                 return supertest(app)
                         .delete(`/api/sitems/${itemId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(404, {
                             error : {message: `Item doesn't exist`}
                         })
@@ -123,19 +125,12 @@ describe(`Spending Items Endpoints` , () => {
         })
         context(`Given there are items in the database` , ()=> {
             beforeEach('insert Items' , ()=> {
-                return db
-                .into('wimm_user')
-                .insert(testUsers)
-                .then(()=> {
-                    return db
-                    .into('wimm_spending_list')
-                    .insert(testLists)
-                    .then(()=> {
-                        return db
-                        .into('wimm_spending_item')
-                        .insert(testItems)
-                    })
-                })
+                return helpers.seedSpendingItemTables(
+                    db,
+                    testUsers,
+                    testLists,
+                    testItems
+                )
             })
             it(`Responds with 204 and removes the item` , ()=> {
                 const idToRemove = 2;
@@ -143,6 +138,7 @@ describe(`Spending Items Endpoints` , () => {
 
                 return supertest(app)
                         .delete(`/api/sitems/${idToRemove}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(204)
                         .then(res=>
                             supertest(app)
@@ -154,11 +150,20 @@ describe(`Spending Items Endpoints` , () => {
     })
     describe(`PATCH /api/sitems/:sitem_id` ,()=> {
         context(`Given no data` , ()=> {
+            beforeEach('insert Items' , ()=> {
+                return helpers.seedSpendingItemTables(
+                    db,
+                    testUsers,
+                    testLists,
+                    testItems
+                )
+            })
             it(`Responds with 404`, ()=> {
                 const itemId = 123456;
                 
                 return supertest(app)
                         .patch(`/api/sitems/${itemId}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .expect(404, {
                             error : {message: `Item doesn't exist`}
                         })
@@ -166,19 +171,12 @@ describe(`Spending Items Endpoints` , () => {
         })
         context(`Given there are items in the database` , ()=> {
             beforeEach('insert Items' , ()=> {
-                return db
-                .into('wimm_user')
-                .insert(testUsers)
-                .then(()=> {
-                    return db
-                    .into('wimm_spending_list')
-                    .insert(testLists)
-                    .then(()=> {
-                        return db
-                        .into('wimm_spending_item')
-                        .insert(testItems)
-                    })
-                })
+                return helpers.seedSpendingItemTables(
+                    db,
+                    testUsers,
+                    testLists,
+                    testItems
+                )
             })
             it(`Responds with 204 and update the item` , ()=> {
                 const idToUpdate = 1;
@@ -195,11 +193,13 @@ describe(`Spending Items Endpoints` , () => {
 
                 return supertest(app)
                         .patch(`/api/sitems/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send(itemToUpdate)
                         .expect(204)
                         .then(res=> 
                             supertest(app)
                                 .get(`/api/sitems/${idToUpdate}`)
+                                .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                                 .expect(expectedItem)
                             )
             })
@@ -208,6 +208,7 @@ describe(`Spending Items Endpoints` , () => {
 
                 return supertest(app)
                         .patch(`/api/sitems/${idToUpdate}`)
+                        .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                         .send({irrelevantField : 'foo'})
                         .expect(400, {
                           error :  {messge: `Request body must contain either 'category_id', 'item_name', 'spending' or 'content'`}
@@ -228,6 +229,7 @@ describe(`Spending Items Endpoints` , () => {
 
                 return supertest(app)
                     .patch(`/api/sitems/${idToUpdate}`)
+                    .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                     .send({
                         ...itemToUpdate,
                         fieldToIgnore : `Should not be in GET response`
@@ -236,6 +238,7 @@ describe(`Spending Items Endpoints` , () => {
                     .then(res=> 
                         supertest(app)
                             .get(`/api/sitems/${idToUpdate}`)
+                            .set('Authorization', helpers.makeAuthHeader(testUsers[0]))
                             .expect(expectedItem)
                         )
             })

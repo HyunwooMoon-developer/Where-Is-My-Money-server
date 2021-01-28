@@ -171,6 +171,38 @@ function seedIncomesTables(db, users, incomes){
     })
 }
 
+function seedSpendingListTables(db, users, spendingLists){
+    return db.transaction(async trx=>{
+        await seedUsers(trx, users)
+        await trx.into('wimm_spending_list').insert(spendingLists)
+        await Promise.all([
+            trx.raw(
+                `SELECT setval('wimm_spending_list_id_seq', ?)`,
+                [spendingLists[spendingLists.length -1].id],
+            ),
+        ])
+    })
+}
+
+function seedSpendingItemTables(db, users, spendingLists, spendingItems){
+    return db.transaction(async trx=>{
+        await seedUsers(trx, users)
+        await trx.into('wimm_spending_list').insert(spendingLists)
+        await trx.into('wimm_spending_item').insert(spendingItems)
+        await Promise.all([
+            trx.raw(
+                `SELECT setval('wimm_spending_list_id_seq', ?)`,
+                [spendingLists[spendingLists.length -1].id],
+            ),
+            trx.raw(
+                `SELECT setval('wimm_spending_item_id_seq', ?)`,
+                [spendingItems[spendingItems.length -1].id]
+            )
+        ])
+    })
+}
+
+
 function makeAuthHeader(user, secret = process.env.JWT_SECRET){
     const token = jwt.sign({user_id: user.id}, secret, {
         subject : user.user_name,
@@ -190,6 +222,8 @@ module.exports = {
 
     cleanTable,
     seedIncomesTables,
+    seedSpendingListTables,
+    seedSpendingItemTables,
     makeAuthHeader,
     seedUsers
 }
