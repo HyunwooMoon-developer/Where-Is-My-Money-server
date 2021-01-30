@@ -1,27 +1,181 @@
-# Express Boilerplate!
+# Where Is My Money
 
-This is a boilerplate project used for starting new projects!
 
-## Set up
+## Application Summary
 
-Complete the following steps to start a new project (NEW-PROJECT-NAME) :
+User can save your wallet with checking income and spending.
+User can register or login and Add, Edit ,or delete Income or Spending.
+The Report page shows compare income and spending and check how much in my pocket.
 
-1. Clone this repository to your local machine `git clone BOILERPLATE-URL NEW-PROJECTS-NAME`
-2. `cd` into the cloned repository
-3. Make a fresh start of the git history for this project with `rm -rf .git&& git init`
-4. Install the node dependencies `npm install`
-5. Move the example Environment file to `.env` that will be ignored by git and read by the express server `mv example.env .env`
-6. Edit the contents of the `package.json` to use NEW-PROJECT-NAME instead of `"name" : "express-bolierplate",`
 
-## Scripts
+This link is the front-end client, built in React.  
+https://first-capstone-7jximoi0z.vercel.app/
 
-Start the application `npm start`
 
-Start nodemon for the application `npm run dev`
+## Application Screenshot
 
-Run the tests `npm test`
+![Screenshot](./src/img/screenshot.jpg)
 
-## Deploying
+## What I Use for App
 
-When your new project is ready for deployment, add a new Heroku application with `heroku create` . This will make a new git remote called "heroku" and you can then `npm run deploy` which will push to this remote's main branch.
+### Back End
 
+- Node and Express
+  - Authentication via JWT
+  - RESTful Api
+
+- Testing
+  - Supertest(integration)
+  - Mocha and Chai (unit)
+
+- Database
+  - postgreSQL
+  - knex
+
+- Production
+  - Deployed via Heoku
+
+### Front End
+
+- React
+  - Create React
+  - React Router
+  - React Context
+
+- Testing
+  - Jest(Somke tests)
+
+- Production
+  - Deployed via Vercel
+
+## Documentation of API
+
+### Authorization
+
+- API requests protected endpoints requires the use of a bearer token. 
+- To authenticate an API request, user should provide user's bearer token in the Authorization header.
+
+### Where Is My Money's Endpoint
+
+#### Users Endpoint
+
+```http
+POST  /api/users
+```
+
+|  Key         | Values               |
+| :------------|----------------------|
+|   user_name  | string, required     |
+|   password   | string, required     |
+|   full_name  | string, required     |
+
+
+#### Income Endpoint
+
+```http
+GET  /api/incomes
+```
+
+Provides array of all incomes objects
+
+```http
+GET  /api/incomes/:income_id
+```
+
+Provides specific income
+
+```http
+POST  /api/incomes
+```
+
+Creates a new income. Requires a request body
+
+|  Key         | Values               |
+| :------------|----------------------|
+|   start_time | number, required     |
+|   end_time   | number, required     |
+|hourly_payment| number, required     |
+| daily_extra  | number, optional     |
+
+```http
+DELETE  /api/incomes/:income_id
+```
+Deletes income matching id parameter
+
+```http
+PATCH  /api/incomes/:income_id
+```
+
+Updates income matching id with the fields provided.
+
+
+#### SpendingList Endpoint
+
+```http
+GET  /api/slists
+```
+
+Provides array of all spending lists objects
+
+```http
+GET  /api/slists/:slist_id
+```
+
+Provides specific spending list
+
+```http
+POST  /api/slists
+```
+
+Creates a new spending list. Requires a request body
+
+|  Key         | Values               |
+| :------------|----------------------|
+|   category   | string, required     |
+
+```http
+DELETE  /api/slists/:slist_id
+```
+Deletes spending list matching id parameter
+
+```http
+PATCH  /api/slists/:slist_id
+```
+
+Updates income matching id with the fields provided.
+
+
+#### SpendingItem Endpoint
+
+```http
+GET  /api/sitems
+```
+
+Provides array of all spending items objects
+
+```http
+GET  /api/sitems/:sitem_id
+```
+
+Provides specific spending item
+
+```http
+POST  /api/sitems
+```
+
+Creates a new spending item. Requires a request body
+
+|  Key         | Values               |
+| :------------|----------------------|
+|   category   | string, required     |
+
+```http
+DELETE  /api/sitems/:sitem_id
+```
+Deletes spending list matching id parameter
+
+```http
+PATCH  /api/sitems/:sitem_id
+```
+
+Updates income matching id with the fields provided.
