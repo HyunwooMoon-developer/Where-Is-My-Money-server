@@ -12,9 +12,6 @@ This link is the front-end client, built in React.
 https://first-capstone-7jximoi0z.vercel.app/
 
 
-## Application Screenshot
-
-![Screenshot](./src/img/screenshot.jpg)
 
 ## What I Use for App
 
@@ -144,6 +141,9 @@ PATCH  /api/slists/:slist_id
 
 Updates income matching id with the fields provided.
 
+|  Key         | Values               |
+| :------------|----------------------|
+|   category   | string, required     |
 
 #### SpendingItem Endpoint
 
@@ -167,7 +167,9 @@ Creates a new spending item. Requires a request body
 
 |  Key         | Values               |
 | :------------|----------------------|
-|   category   | string, required     |
+|  item_ name  | string, required     |
+|  spending    | number, required     |
+|  content     | string, required     |
 
 ```http
 DELETE  /api/sitems/:sitem_id
@@ -179,3 +181,9 @@ PATCH  /api/sitems/:sitem_id
 ```
 
 Updates income matching id with the fields provided.
+
+|  Key         | Values               |
+| :------------|----------------------|
+|  item_ name  | string, required     |
+|  spending    | number, required     |
+|  content     | string, required     |
