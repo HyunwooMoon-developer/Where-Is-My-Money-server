@@ -22,8 +22,8 @@ https://first-capstone-fuyh4yuta.vercel.app/
   - RESTful Api
 
 - Testing
-  - Supertest(integration)
-  - Mocha and Chai (unit)
+  - Supertest
+  - Mocha and Chai 
 
 - Database
   - postgreSQL
